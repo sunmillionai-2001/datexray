@@ -98,6 +98,9 @@ export const VISUAL_TEMPLATE_ZH: Record<string, { name: string; layout: string }
 };
 
 const EXACT_ERRORS: Record<string, string> = {
+  "Translation text must contain between 1 and 280 characters.": "需要更新中译的英文正文必须为 1 到 280 个字符。",
+  "Translation text must be written in English.": "请保持推文正文为英文，再更新中文对照。",
+  "DeepSeek returned invalid Chinese translation after one repair attempt.": "中文对照更新失败：DeepSeek 修复一次后仍未返回有效中译，请重试。",
   "Request body must be a JSON object.": "请求内容必须是 JSON 对象。",
   "Choose one of the six supported content types.": "请选择六种受支持的内容类型之一。",
   "Range must be 7, 14, or 30 days.": "Git 时间范围只能选择 7、14 或 30 天。",

@@ -235,19 +235,22 @@ Fixed response:
 {
   "drafts": [
     {
-      "angle": "Educational breakdown",
+      "angle": "证据优先",
       "text": "English post, maximum 280 characters",
-      "whyItWorks": "Short operator-facing explanation"
+      "zh_summary": "忠实中文对照译文，保留数字、否定、条件和语气强度",
+      "whyItWorks": "中文表达策略说明，不承担翻译"
     },
     {
-      "angle": "Story-led",
+      "angle": "故事切入",
       "text": "English post, maximum 280 characters",
-      "whyItWorks": "Short operator-facing explanation"
+      "zh_summary": "忠实中文对照译文，保留数字、否定、条件和语气强度",
+      "whyItWorks": "中文表达策略说明，不承担翻译"
     },
     {
-      "angle": "Conversation starter",
+      "angle": "发起讨论",
       "text": "English post, maximum 280 characters",
-      "whyItWorks": "Short operator-facing explanation"
+      "zh_summary": "忠实中文对照译文，保留数字、否定、条件和语气强度",
+      "whyItWorks": "中文表达策略说明，不承担翻译"
     }
   ]
 }
@@ -256,13 +259,17 @@ Fixed response:
 Server validation:
 
 - Require exactly three drafts.
-- Require non-empty `angle`, `text`, and `whyItWorks` fields.
+- Require non-empty `angle`, `text`, `zh_summary`, and `whyItWorks` fields. Require Chinese content in the three operator-facing fields; apply the English check to `text` only.
 - Count Unicode characters and require `text` to be at most 280 characters.
 - Reject three identical drafts.
 - Reject fields outside the schema.
 - If the first response is invalid, make one repair request containing the validation errors. If repair also fails, return a readable error and do not write to the ledger.
 
-### 4.2 Git insight generation
+### 4.2 Bilingual review refresh
+
+The bilingual review extension adds `POST /api/translate` with `{ text }`, returning `{ data: { text, zh_summary } }`. The server echoes the exact submitted English and only asks DeepSeek for its Chinese translation. Editing invalidates pending translation requests; each card and generation batch is isolated. See [bilingual review](bilingual-review.md) for synchronization and acceptance details. This does not change the Git insight contract below.
+
+### 4.3 Git insight generation
 
 The local server calls Git with an argument array instead of constructing a shell string. The date range is selected from a fixed allowlist.
 

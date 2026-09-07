@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { DraftCard } from "@/components/draft-card";
 import { GitImporter } from "@/components/git-importer";
@@ -13,10 +13,13 @@ import type {
   GitCommit,
   GitInsight,
   LedgerEntry,
+  LedgerSource,
+  TranslationResult,
 } from "@/lib/types";
 
 export type XGeneratorApi = {
   generate: (input: { contentType: ContentTypeId; material: string; topicId?: string; context?: { goal?: string } }) => Promise<GenerationResult>;
+  translate: (input: { text: string }) => Promise<TranslationResult>;
   log: (input: CopyLedgerInput) => Promise<Pick<LedgerEntry, "id"> | { id: string }>;
   gitInsights: (rangeDays: number) => Promise<{ commits: GitCommit[]; insights: GitInsight[] }>;
 };
@@ -36,8 +39,15 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
 
 const browserApi: XGeneratorApi = {
   generate: (input) => postJson<GenerationResult>("/api/generate", input),
+  translate: (input) => postJson<TranslationResult>("/api/translate", input),
   log: (input) => postJson<LedgerEntry>("/api/ledger", input),
   gitInsights: (rangeDays) => postJson<{ commits: GitCommit[]; insights: GitInsight[] }>("/api/git-insights", { rangeDays }),
+};
+
+type DraftBatch = GenerationResult & {
+  batchId: number;
+  contentType: ContentTypeId;
+  source: LedgerSource;
 };
 
 export function XGenerator({
@@ -62,13 +72,16 @@ export function XGenerator({
   const [topicId, setTopicId] = useState<string | undefined>(initialTopicId);
   const [sourceKind, setSourceKind] = useState<"manual" | "topic" | "git" | "reuse">(initialTopicId ? "topic" : initialMaterial ? "reuse" : "manual");
   const [commitHashes, setCommitHashes] = useState<string[]>([]);
-  const [generation, setGeneration] = useState<GenerationResult | null>(null);
+  const [generation, setGeneration] = useState<DraftBatch | null>(null);
+  const generationRequest = useRef(0);
   const [editedDrafts, setEditedDrafts] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [copyingIndex, setCopyingIndex] = useState<number | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [pendingLog, setPendingLog] = useState<CopyLedgerInput | null>(null);
+
+  useEffect(() => () => { generationRequest.current += 1; }, []);
 
   const selectedType = useMemo(
     () => initialData.contentTypes.find((candidate) => candidate.id === contentType),
@@ -86,6 +99,8 @@ export function XGenerator({
   }
 
   async function generate() {
+    const batchId = ++generationRequest.current;
+    const source: LedgerSource = { kind: sourceKind, topicId: topicId ?? null, material, commitHashes: [...commitHashes] };
     setBusy(true);
     setError("");
     setMessage("");
@@ -97,12 +112,14 @@ export function XGenerator({
         topicId,
         context: goal.trim() ? { goal: goal.trim() } : undefined,
       });
-      setGeneration(result);
+      if (batchId !== generationRequest.current) return;
+      setGeneration({ ...result, batchId, contentType, source });
       setEditedDrafts(result.drafts.map((draft) => draft.text));
     } catch (reason) {
+      if (batchId !== generationRequest.current) return;
       setError(reason instanceof Error ? localizeErrorMessage(reason.message) : "无法生成推文。");
     } finally {
-      setBusy(false);
+      if (batchId === generationRequest.current) setBusy(false);
     }
   }
 
@@ -110,8 +127,8 @@ export function XGenerator({
     if (!generation) throw new Error("请先生成推文，再执行复制。");
     return {
       channel: "x",
-      contentType,
-      source: { kind: sourceKind, topicId: topicId ?? null, material, commitHashes },
+      contentType: generation.contentType,
+      source: generation.source,
       generation: {
         generationId: generation.generationId,
         variantIndex: index,
@@ -194,7 +211,7 @@ export function XGenerator({
         <aside className="voice-card"><p className="eyebrow">品牌声音检查</p><h2>提供证据，<br />不替人下结论。</h2><ul><li>专业，但不显得冷冰冰</li><li>有用，但不制造恐慌</li><li>观点清晰，同时保留语境空间</li><li>给出参考行动，不替用户做关系决定</li></ul><div>参考表达（英文）<br /><strong>“Here is what this pattern may signal—and what you can verify next.”</strong></div></aside>
       </div>
 
-      {generation ? <section className="drafts-section"><div className="section-heading"><div><p className="eyebrow">03 · 复制前先编辑</p><h2>同一组事实，三种英文表达。</h2></div><span className="generation-id">生成 ID {generation.generationId.slice(0, 8)}</span></div><div className="draft-grid">{generation.drafts.map((draft, index) => <DraftCard key={`${generation.generationId}-${index}`} draft={draft} index={index} text={editedDrafts[index] ?? ""} busy={copyingIndex === index} onChange={(text) => setEditedDrafts((current) => current.map((value, currentIndex) => currentIndex === index ? text : value))} onCopy={() => copyDraft(index)} />)}</div></section> : null}
+      {generation ? <section className="drafts-section"><div className="section-heading"><div><p className="eyebrow">03 · 中英对照审阅</p><h2>同一组事实，三种英文表达。</h2><p className="drafts-description">中文帮助你理解英文；编辑正文后，可单独更新对应中译。角度与策略说明基于生成时的初稿。</p><span className="type-chip">本批内容：{contentTypeLabel(generation.contentType)}</span></div><span className="generation-id">生成 ID {generation.generationId.slice(0, 8)}</span></div><div className="draft-grid">{generation.drafts.map((draft, index) => <DraftCard key={`${generation.batchId}-${index}`} draft={draft} index={index} text={editedDrafts[index] ?? ""} busy={copyingIndex === index} onChange={(text) => setEditedDrafts((current) => current.map((value, currentIndex) => currentIndex === index ? text : value))} onCopy={() => copyDraft(index)} translate={api.translate} />)}</div></section> : null}
 
       <GitImporter api={api} onSelect={useGitInsight} />
     </main>

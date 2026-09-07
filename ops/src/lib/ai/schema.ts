@@ -23,6 +23,27 @@ function looksEnglish(text: string) {
   return /[A-Za-z]/.test(text) && !/[\u3400-\u9fff\u3040-\u30ff\uac00-\ud7af]/u.test(text);
 }
 
+export function validateTranslationText(text: string) {
+  if (!text.trim() || Array.from(text).length > 280) {
+    throw new Error("Translation text must contain between 1 and 280 characters.");
+  }
+  if (!looksEnglish(text)) throw new Error("Translation text must be written in English.");
+}
+
+function requiredChinese(value: unknown, field: string, maxLength: number) {
+  const text = requiredText(value, field, maxLength);
+  if (!/[\u3400-\u9fff]/u.test(text)) throw new Error(`${field} must be written in Simplified Chinese.`);
+  return text;
+}
+
+export function parseChineseTranslation(value: unknown): string {
+  const root = asRecord(value);
+  if (!root || !hasExactKeys(root, ["zh_summary"])) {
+    throw new Error("Response must contain only zh_summary.");
+  }
+  return requiredChinese(root.zh_summary, "zh_summary", 800);
+}
+
 export function parseXDrafts(value: unknown): GenerationDraft[] {
   const root = asRecord(value);
   if (!root || !hasExactKeys(root, ["drafts"]) || !Array.isArray(root.drafts) || root.drafts.length !== 3) {
@@ -31,15 +52,16 @@ export function parseXDrafts(value: unknown): GenerationDraft[] {
 
   const drafts = root.drafts.map((candidate, index) => {
     const draft = asRecord(candidate);
-    if (!draft || !hasExactKeys(draft, ["angle", "text", "whyItWorks"])) {
+    if (!draft || !hasExactKeys(draft, ["angle", "text", "zh_summary", "whyItWorks"])) {
       throw new Error(`Draft ${index + 1} has an invalid shape.`);
     }
     const text = requiredText(draft.text, `Draft ${index + 1} text`, 280);
     if (!looksEnglish(text)) throw new Error(`Draft ${index + 1} must be written in English.`);
     return {
-      angle: requiredText(draft.angle, `Draft ${index + 1} angle`, 100),
+      angle: requiredChinese(draft.angle, `Draft ${index + 1} angle`, 100),
       text,
-      whyItWorks: requiredText(draft.whyItWorks, `Draft ${index + 1} whyItWorks`, 240),
+      zh_summary: requiredChinese(draft.zh_summary, `Draft ${index + 1} zh_summary`, 800),
+      whyItWorks: requiredChinese(draft.whyItWorks, `Draft ${index + 1} whyItWorks`, 240),
     };
   });
 

@@ -28,6 +28,7 @@ export function errorResponse(error: unknown) {
     "Request body must be a JSON object.",
     "Source material",
     "Final text",
+    "Translation text",
     "Topic title",
     "Topic angle",
     "Topic content types",

@@ -11,10 +11,13 @@ export type DeepSeekDependencies = {
   fetch?: typeof fetch;
 };
 
+export type DeepSeekRequestOptions = { maxTokens?: number; temperature?: number };
+
 export async function requestDeepSeekJson(
   system: string,
   user: string,
   dependencies: DeepSeekDependencies = {},
+  options: DeepSeekRequestOptions = {},
 ): Promise<unknown> {
   const apiKey = dependencies.apiKey === undefined ? process.env.DEEPSEEK_API_KEY?.trim() : dependencies.apiKey.trim();
   if (!apiKey) throw new Error("DEEPSEEK_API_KEY is not configured.");
@@ -33,8 +36,8 @@ export async function requestDeepSeekJson(
       ],
       thinking: { type: "disabled" },
       response_format: { type: "json_object" },
-      temperature: 0.6,
-      max_tokens: 1600,
+      temperature: options.temperature ?? 0.6,
+      max_tokens: options.maxTokens ?? 1600,
     }),
     cache: "no-store",
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),

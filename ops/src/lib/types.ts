@@ -127,7 +127,13 @@ export type CopyLedgerInput = Pick<LedgerEntry, "channel" | "contentType" | "sou
 export type GenerationDraft = {
   angle: string;
   text: string;
+  zh_summary: string;
   whyItWorks: string;
+};
+
+export type TranslationResult = {
+  text: string;
+  zh_summary: string;
 };
 
 export type GenerationResult = {

@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 
-import { requestDeepSeekJson, type DeepSeekDependencies } from "@/lib/ai/deepseek";
-import { buildGitPrompts, buildRepairPrompt, buildXPrompts, type XGenerationInput } from "@/lib/ai/prompt";
-import { parseGitInsights, parseXDrafts } from "@/lib/ai/schema";
-import { CONTENT_TYPE_IDS, type GenerationResult, type GitCommit, type GitInsight } from "@/lib/types";
+import { requestDeepSeekJson, type DeepSeekDependencies, type DeepSeekRequestOptions } from "@/lib/ai/deepseek";
+import { buildGitPrompts, buildRepairPrompt, buildTranslationPrompts, buildXPrompts, type XGenerationInput } from "@/lib/ai/prompt";
+import { parseChineseTranslation, parseGitInsights, parseXDrafts, validateTranslationText } from "@/lib/ai/schema";
+import { CONTENT_TYPE_IDS, type GenerationResult, type GitCommit, type GitInsight, type TranslationResult } from "@/lib/types";
 
 type GenerationDependencies = DeepSeekDependencies & {
   idFactory?: () => string;
@@ -27,10 +27,11 @@ async function requestWithOneRepair<T>(
   parse: (value: unknown) => T,
   failureMessage: string,
   dependencies: DeepSeekDependencies,
+  options: DeepSeekRequestOptions = {},
 ): Promise<T> {
   let raw: unknown;
   try {
-    raw = await requestDeepSeekJson(system, user, dependencies);
+    raw = await requestDeepSeekJson(system, user, dependencies, options);
   } catch (error) {
     if (error instanceof Error && (
       error.message.includes("not configured") || error.message.includes("request failed")
@@ -43,8 +44,9 @@ async function requestWithOneRepair<T>(
   } catch (firstError) {
     const repaired = await requestDeepSeekJson(
       system,
-      buildRepairPrompt(raw, firstError instanceof Error ? firstError.message : "Invalid output"),
+      `${user}\n\n${buildRepairPrompt(raw, firstError instanceof Error ? firstError.message : "Invalid output")}`,
       dependencies,
+      options,
     );
     try {
       return parse(repaired);
@@ -66,11 +68,26 @@ export async function generateXDrafts(
     parseXDrafts,
     "DeepSeek returned invalid X drafts after one repair attempt.",
     dependencies,
+    { maxTokens: 3000 },
   );
   return {
     generationId: (dependencies.idFactory ?? randomUUID)(),
     drafts,
   };
+}
+
+export async function translateXText(text: string, dependencies: DeepSeekDependencies = {}): Promise<TranslationResult> {
+  validateTranslationText(text);
+  const { system, user } = buildTranslationPrompts(text);
+  const zh_summary = await requestWithOneRepair(
+    system,
+    user,
+    parseChineseTranslation,
+    "DeepSeek returned invalid Chinese translation after one repair attempt.",
+    dependencies,
+    { temperature: 0, maxTokens: 1200 },
+  );
+  return { text, zh_summary };
 }
 
 export async function generateGitInsights(
