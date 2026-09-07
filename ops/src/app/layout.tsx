@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/app-shell";
+import "@fontsource/geist/latin-400.css";
+import "@fontsource/geist/latin-700.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

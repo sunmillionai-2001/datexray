@@ -44,7 +44,7 @@ describe("local operations API", () => {
 
     expect(response.status).toBe(200);
     expect(payload.data.contentTypes).toHaveLength(6);
-    expect(payload.data.templates).toHaveLength(3);
+    expect(payload.data.templates).toHaveLength(2);
     expect(payload.data.ledger.entries).toEqual([]);
     expect(payload.data.topics).toEqual([]);
   });

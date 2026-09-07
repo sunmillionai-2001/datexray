@@ -2,51 +2,32 @@
   "version": 1,
   "templates": [
     {
-      "id": "scam-pattern-card",
-      "name": "Scam pattern card",
-      "aspectRatio": "4:5",
-      "recommendedTypes": ["anti_fraud", "product_demo"],
-      "layout": "Signal label, one warning phrase, three observable checkpoints, and a reference-action footer.",
-      "copySlots": ["signal", "warningPhrase", "checkpoint1", "checkpoint2", "checkpoint3", "footer"],
-      "colors": ["#11110f", "#f3f0e8", "#ff6b5f", "#d7ff63"],
+      "id": "insight-card",
+      "name": "Data / insight card",
+      "aspectRatio": "16:9 · 1200×675",
+      "recommendedTypes": ["anti_fraud", "opinion", "build_in_public", "founder_pov"],
+      "layout": "Evidence-backed number with full context and source, or a concise opinion when no supported number exists; supporting line and optional product hook.",
+      "copySlots": ["headline", "support", "evidence", "source", "hook"],
+      "colors": ["#0f172a", "#ff8a3d", "#3cff8f", "#83ddff"],
       "exampleContent": {
-        "signal": "Pattern, not proof",
-        "warningPhrase": "I cannot video call, but I need you to invest today.",
-        "checkpoint1": "Repeatedly avoids live verification",
-        "checkpoint2": "Creates urgency",
-        "checkpoint3": "Requests irreversible payment",
-        "footer": "Pause. Verify independently. Keep account access private."
+        "headline": "Pressure is a signal to verify—not proof.",
+        "support": "Keep the context, conditions and uncertainty visible.",
+        "footer": "DateXray · datexray.com"
       }
     },
     {
-      "id": "build-log-card",
-      "name": "Build log card",
-      "aspectRatio": "16:9",
-      "recommendedTypes": ["build_in_public", "founder_pov"],
-      "layout": "Small build number, large shipped change, one why-it-matters line, and one lesson.",
-      "copySlots": ["buildNumber", "shipped", "whyItMatters", "lesson"],
-      "colors": ["#f3f0e8", "#11110f", "#d7ff63", "#8d8a80"],
+      "id": "dialogue-card",
+      "name": "Conversation excerpt card",
+      "aspectRatio": "16:9 · 1200×675",
+      "recommendedTypes": ["anti_fraud", "product_demo", "interaction"],
+      "layout": "Verbatim source dialogue or a permanently marked hypothetical teaching example, observable behavior signal, supporting line and optional product hook.",
+      "copySlots": ["headline", "quote", "signal", "support", "hook"],
+      "colors": ["#0f172a", "#ff8a3d", "#ff5869", "#83ddff"],
       "exampleContent": {
-        "buildNumber": "BUILD 014",
-        "shipped": "Evidence stays server-side until unlock",
-        "whyItMatters": "Sensitive details should not leak through a locked interface.",
-        "lesson": "Access control is a data-flow decision, not a blur effect."
-      }
-    },
-    {
-      "id": "conversation-prompt-card",
-      "name": "Conversation prompt card",
-      "aspectRatio": "1:1",
-      "recommendedTypes": ["interaction", "opinion"],
-      "layout": "A short framing label, one large question, two contrasting answer lanes, and a reply prompt.",
-      "copySlots": ["label", "question", "optionA", "optionB", "footer"],
-      "colors": ["#171716", "#f3f0e8", "#8ee8ff", "#ff9f92"],
-      "exampleContent": {
-        "label": "YOUR READ",
-        "question": "Which matters more when trust is still new?",
-        "optionA": "A polished profile",
-        "optionB": "Consistent, verifiable behavior",
-        "footer": "Reply A or B — and tell us why."
+        "headline": "A signal to pause and verify",
+        "quote": "Please send the money today.",
+        "signal": "Payment pressure · A signal, not a verdict",
+        "footer": "DateXray · datexray.com"
       }
     }
   ]

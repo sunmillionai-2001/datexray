@@ -14,6 +14,7 @@ export function DraftCard({
   onChange,
   onCopy,
   translate,
+  onImage,
 }: {
   draft: GenerationDraft;
   index: number;
@@ -22,6 +23,7 @@ export function DraftCard({
   onChange: (text: string) => void;
   onCopy: () => void;
   translate: (input: { text: string }) => Promise<TranslationResult>;
+  onImage?: () => void;
 }) {
   const length = Array.from(text).length;
   const fieldId = useId();
@@ -99,6 +101,7 @@ export function DraftCard({
       >
         {busy ? "保存中…" : `复制并记入台账：第 ${index + 1} 版`} <span aria-hidden="true">↗</span>
       </button>
+      {onImage ? <button type="button" onClick={onImage} disabled={Boolean(validationError)} aria-label={`打开第 ${index + 1} 版配图`}>生成配图／编辑配图 <span aria-hidden="true">↗</span></button> : null}
     </article>
   );
 }

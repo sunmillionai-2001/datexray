@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { DraftCard } from "@/components/draft-card";
 import { GitImporter } from "@/components/git-importer";
+import { ImageStudio } from "@/components/image-studio";
 import { CONTENT_TYPE_ZH, contentTypeLabel, localizeErrorMessage } from "@/lib/i18n/zh-cn";
 import type {
   BootstrapData,
@@ -80,6 +81,7 @@ export function XGenerator({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [pendingLog, setPendingLog] = useState<CopyLedgerInput | null>(null);
+  const [imageIndex, setImageIndex] = useState<number | null>(null);
 
   useEffect(() => () => { generationRequest.current += 1; }, []);
 
@@ -115,6 +117,7 @@ export function XGenerator({
       if (batchId !== generationRequest.current) return;
       setGeneration({ ...result, batchId, contentType, source });
       setEditedDrafts(result.drafts.map((draft) => draft.text));
+      setImageIndex(null);
     } catch (reason) {
       if (batchId !== generationRequest.current) return;
       setError(reason instanceof Error ? localizeErrorMessage(reason.message) : "无法生成推文。");
@@ -211,7 +214,9 @@ export function XGenerator({
         <aside className="voice-card"><p className="eyebrow">品牌声音检查</p><h2>提供证据，<br />不替人下结论。</h2><ul><li>专业，但不显得冷冰冰</li><li>有用，但不制造恐慌</li><li>观点清晰，同时保留语境空间</li><li>给出参考行动，不替用户做关系决定</li></ul><div>参考表达（英文）<br /><strong>“Here is what this pattern may signal—and what you can verify next.”</strong></div></aside>
       </div>
 
-      {generation ? <section className="drafts-section"><div className="section-heading"><div><p className="eyebrow">03 · 中英对照审阅</p><h2>同一组事实，三种英文表达。</h2><p className="drafts-description">中文帮助你理解英文；编辑正文后，可单独更新对应中译。角度与策略说明基于生成时的初稿。</p><span className="type-chip">本批内容：{contentTypeLabel(generation.contentType)}</span></div><span className="generation-id">生成 ID {generation.generationId.slice(0, 8)}</span></div><div className="draft-grid">{generation.drafts.map((draft, index) => <DraftCard key={`${generation.batchId}-${index}`} draft={draft} index={index} text={editedDrafts[index] ?? ""} busy={copyingIndex === index} onChange={(text) => setEditedDrafts((current) => current.map((value, currentIndex) => currentIndex === index ? text : value))} onCopy={() => copyDraft(index)} translate={api.translate} />)}</div></section> : null}
+      {generation ? <section className="drafts-section"><div className="section-heading"><div><p className="eyebrow">03 · 中英对照审阅</p><h2>同一组事实，三种英文表达。</h2><p className="drafts-description">中文帮助你理解英文；编辑正文后，可单独更新对应中译。角度与策略说明基于生成时的初稿。</p><span className="type-chip">本批内容：{contentTypeLabel(generation.contentType)}</span></div><span className="generation-id">生成 ID {generation.generationId.slice(0, 8)}</span></div><div className="draft-grid">{generation.drafts.map((draft, index) => <DraftCard key={`${generation.batchId}-${index}`} draft={draft} index={index} text={editedDrafts[index] ?? ""} busy={copyingIndex === index} onChange={(text) => setEditedDrafts((current) => current.map((value, currentIndex) => currentIndex === index ? text : value))} onCopy={() => copyDraft(index)} translate={api.translate} onImage={() => { setImageIndex(index); setTimeout(() => document.getElementById(`image-studio-${index}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0); }} />)}</div>
+        {generation.drafts.map((_, index) => <div key={`image-${generation.batchId}-${index}`} id={`image-studio-${index}`} hidden={imageIndex !== index}><ImageStudio index={index} text={editedDrafts[index] ?? ""} material={generation.source.material} contentType={generation.contentType} /></div>)}
+      </section> : null}
 
       <GitImporter api={api} onSelect={useGitInsight} />
     </main>

@@ -16,13 +16,12 @@ describe("committed operations configuration", () => {
     ]);
   });
 
-  test("ships the three approved visual template definitions", async () => {
+  test("ships the two implemented 16:9 visual template definitions", async () => {
     const data = await readStaticJson<{ templates: Array<{ id: string }> }>("visual-templates.json");
 
     expect(data.templates.map((item) => item.id)).toEqual([
-      "scam-pattern-card",
-      "build-log-card",
-      "conversation-prompt-card",
+      "insight-card",
+      "dialogue-card",
     ]);
   });
 });

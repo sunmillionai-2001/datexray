@@ -83,17 +83,13 @@ export const BRAND_VOICE_ZH = {
 };
 
 export const VISUAL_TEMPLATE_ZH: Record<string, { name: string; layout: string }> = {
-  "scam-pattern-card": {
-    name: "诈骗模式卡片",
-    layout: "风险信号标签、一句警示语、三个可观察检查点，以及参考行动页脚。",
+  "insight-card": {
+    name: "数据／观点卡",
+    layout: "有完整素材依据时突出数字并保留语境和来源；否则突出一句观点，附支撑说明与可选产品钩子。",
   },
-  "build-log-card": {
-    name: "构建日志卡片",
-    layout: "小号构建编号、大号上线改动、一句价值说明，以及一条经验总结。",
-  },
-  "conversation-prompt-card": {
-    name: "互动提问卡片",
-    layout: "简短引导标签、一个核心问题、两个对比选项，以及回复提示。",
+  "dialogue-card": {
+    name: "对话摘录卡",
+    layout: "逐字引用原始对话，或永久标注虚构教学示例；展示行为信号、支撑说明与可选产品钩子。",
   },
 };
 

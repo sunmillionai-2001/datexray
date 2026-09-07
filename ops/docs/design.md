@@ -123,13 +123,7 @@ Each type contains a stable ID, English display name, description, goal, example
 
 ### 3.4 Visual templates: `data/visual-templates.json`
 
-The first version provides three previewable template definitions:
-
-- Scam pattern card: warning phrase plus three observable checkpoints.
-- Build log card: version, shipped change, and lesson learned.
-- Conversation prompt card: one question with an A/B response prompt.
-
-Each template contains `id`, `name`, `aspectRatio`, `recommendedTypes`, `layout`, `copySlots`, `colors`, and `exampleContent`. The library renders CSS previews and lets the operator copy an image-production brief. PNG export and AI image generation are not part of this version.
+The library mirrors the two implemented 16:9, 1200×675 generator templates: `insight-card` and `dialogue-card`. Each definition contains `id`, `name`, `aspectRatio`, `recommendedTypes`, `layout`, `copySlots`, `colors`, and `exampleContent`.
 
 ### 3.5 Content ledger: `data/content-ledger.json`
 
@@ -269,7 +263,13 @@ Server validation:
 
 The bilingual review extension adds `POST /api/translate` with `{ text }`, returning `{ data: { text, zh_summary } }`. The server echoes the exact submitted English and only asks DeepSeek for its Chinese translation. Editing invalidates pending translation requests; each card and generation batch is isolated. See [bilingual review](bilingual-review.md) for synchronization and acceptance details. This does not change the Git insight contract below.
 
-### 4.3 Git insight generation
+### 4.3 Image copy generation
+
+`POST /api/image-copy` accepts the selected final English, the immutable source material for its generation batch, content type, template and explicit hypothetical consent. One user click makes one DeepSeek call at temperature 0; the server does not silently repair or retry image copy.
+
+The fixed response contains bilingual pairs for `headline`, `support`, `quote`, `evidence`, `source` and `hook`, plus an allowlisted observable-behavior `signal` and `mood`. Only English enters the canvas. Server validation rejects Chinese image text, unsupported numbers, partial or rewritten numeric evidence, invented real dialogue, personality labels and overlong fields. See [image generation](image-generation.md) for the complete operator contract.
+
+### 4.4 Git insight generation
 
 The local server calls Git with an argument array instead of constructing a shell string. The date range is selected from a fixed allowlist.
 
