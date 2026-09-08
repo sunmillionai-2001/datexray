@@ -38,3 +38,30 @@
 .brand span { color: #cbd5e1; font-size: 17px; }
 .cardFooter p { text-align: right; color: #cbd5e1; font-size: 18px; line-height: 1.3; max-height: 48px; overflow-wrap: anywhere; }
 @media (max-width: 700px) { .studio { padding: 16px; } .field { grid-template-columns: 1fr; } }
+
+/* The workbench chrome is editorial; the exported .card above keeps its own brand system. */
+.studio { margin-top: 42px; padding: 30px; border: 2.5px solid #24211f; border-radius: 18px; background: #fffdf7; box-shadow: 5px 6px 0 #24211f; }
+.studio header > p { max-width: 760px; line-height: 1.75; color: #756c60; }
+.studio header h2 { margin: 5px 0 8px; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.035em; }
+.controls, .editHeader { gap: 14px 20px; margin: 27px 0; }
+.controls { padding: 18px; border: 1.5px dashed #756c60; border-radius: 14px; background: #fff4d8; }
+.controls label { color: #756c60; font-size: 12px; font-weight: 750; }
+.studio button { min-height: 46px; padding: 0 20px; border: 1.5px solid #24211f; border-radius: 11px; background: #ffd84c; color: #24211f; box-shadow: 3px 4px 0 #24211f; font-weight: 800; transition: transform 160ms cubic-bezier(.2,.8,.2,1), box-shadow 160ms cubic-bezier(.2,.8,.2,1); }
+.studio button:not(:disabled):hover { transform: translate(1px, 1px); box-shadow: 2px 3px 0 #24211f; }
+.studio button:not(:disabled):active { transform: translate(3px, 4px); box-shadow: none; }
+.studio select { min-height: 44px; padding: 0 38px 0 12px; border: 1.5px solid #24211f; border-radius: 10px; background: #fffdf7; color: #24211f; }
+.studio .check { min-height: 44px; gap: 9px; color: #24211f; }
+.studio pre { padding: 14px; border-radius: 10px; background: #f4ecdc; }
+.studio details { margin: 19px 0; border-block: 1px dashed #d8cbb7; }
+.studio summary { min-height: 44px; display: flex; align-items: center; font-weight: 750; cursor: pointer; }
+.warning { padding: 13px 15px; border: 1.5px solid #9e3c11; border-radius: 11px; background: #fff0d9; color: #7e310e !important; }
+.preview { margin: 30px 0; border: 2.5px solid #24211f; border-radius: 18px; background: #24211f; box-shadow: 5px 6px 0 #f3aac5; }
+.editHeader { justify-content: space-between; padding-bottom: 16px; border-bottom: 1px dashed #d8cbb7; }
+.editHeader h3 { margin: 0; font-size: 21px; }
+.fields { gap: 16px; margin-bottom: 23px; }
+.field { gap: 24px; padding: 20px; border: 1.5px solid #24211f; border-radius: 14px; background: #fffaf0; }
+.field textarea { min-height: 96px; border: 1.5px solid #24211f; border-radius: 10px; background: #fffdf7; color: #24211f; }
+.field textarea:read-only { background: #eee5d5; color: #655d54; }
+@media (max-width: 700px) { .studio { padding: 20px; } .controls, .editHeader { align-items: stretch; flex-direction: column; } .controls label { width: 100%; } .studio select, .studio button { width: 100%; } .field { padding: 16px; } }
+@media (max-width: 360px) { .studio { margin-inline: -4px; padding: 16px; } }
+@media (prefers-reduced-motion: reduce) { .studio button:not(:disabled):hover { transform: none; } }
